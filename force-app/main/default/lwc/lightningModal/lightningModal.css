@@ -1,0 +1,24 @@
+.buketsspins::after {
+    /* position: absolute;
+    content: 'Fetching Buckets Please Wait ......';
+    text-align: center;
+    font-weight: bold;
+    background: none; */
+    position: absolute;
+    content: 'Fetching buckets Please Wait ......';
+    width: 100%;
+    text-align: center;
+    top: calc(50% + 3em);
+    font-weight: bold;
+
+}
+
+.filesspins::after {
+    position: absolute;
+    content: 'Fetching Files Please Wait ......';
+    width: 100%;
+    text-align: center;
+    top: calc(50% + 3em);
+    font-weight: bold;
+    background: none;
+}
