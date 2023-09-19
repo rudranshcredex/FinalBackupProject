@@ -35,12 +35,19 @@ public With Sharing class BulkApiQueryExample {
     Public static void testMethods(String FileData){
         system.debug(FileData);
         system.debug(EncodingUtil.base64Decode(FileData));
+        blob zipData = EncodingUtil.base64Decode(FileData);
+        Attachment attach = new Attachment();
+        attach.Body = zipData;
+        attach.Name ='test Data';
+        attach.ParentId = '0015i00000oYvsvAAC';
+        insert attach;
     }
     
     @auraEnabled
     Public static List<objectsDataWrapper> uploadZipFile(String FileData)
     {
         system.debug(FileData);
+        system.debug(blob.valueOf(fileData));
       
         List<String> objectsInZip = new List<String>();
         Map<String,String> objectsWithCsvData = new Map<String,String>();
@@ -52,7 +59,8 @@ public With Sharing class BulkApiQueryExample {
         }
         
         ContentVersion versions=[SELECT VersionData,Title,ContentDocumentId,FileExtension FROM ContentVersion WHERE ContentDocumentId = :LinkedIds and Title='Data(2)' limit 1];
-        Zippex myzip= new Zippex(versions.VersionData);
+       Zippex myzip= new Zippex(versions.VersionData);
+        //Zippex myzip= new Zippex(EncodingUtil.base64Decode(FileData));
         
         
         for(String fileName: myzip.getFileNames())

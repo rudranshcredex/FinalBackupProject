@@ -1,4 +1,4 @@
-public class DataRecoveryCallout {
+public With sharing class DataRecoveryCallout {
 
     Private static Final String endpointURL = URL.getSalesforceBaseUrl().toExternalForm()+'/services/data/v58.0/jobs/ingest';
     
@@ -19,7 +19,6 @@ public class DataRecoveryCallout {
             request.setHeader('Content-Type', 'application/json');
             request.setBody(requestBody);
             HttpResponse response = new Http().send(request);
-            
             if(response.getStatusCode() == 200 || response.getStatusCode() == 201)
             {
                 Map<String, Object> jobResponse = (Map<String, Object>) JSON.deserializeUntyped(response.getBody());

@@ -1,14 +1,41 @@
 @isTest
 private class EmailAndNotificationTest {
 
+    
+    @testSetup
+    static void createTestData(){
+        try{
+             Profile p = [SELECT Id FROM Profile WHERE Name='Standard User']; 
+             User user = new User(Alias = 'standt', Email='testUser@gmail.com', 
+                EmailEncodingKey='UTF-8', LastName='Testing', LanguageLocaleKey='en_US', 
+                LocaleSidKey='en_US', ProfileId = p.Id, 
+                TimeZoneSidKey='America/Los_Angeles', UserName='testCurrentUser@abc.com');
+            
+             insert user;
+            
+           /* createEmailTemplate('MetadataBackup');
+            createEmailTemplate('data_backup');
+            createCustomNotification();*/
+        }
+        catch(Exception ex){
+            system.debug(ex.getMessage());
+        }
+    }
     @isTest
-    Public static void testsendEmailData(){
+    Public static void testsendEmailToCurrentUser(){
         
+        user user = [select id from user Limit 1];
+        test.startTest();
         
-        Blob attachmentBody1 = Blob.valueOf('Test Data Attachment');
-        String attachmentType1 = 'Data';
-        String result1 = Emailandnotification.sendEmailToCurrentUser(attachmentBody1, attachmentType1);      
-        System.assertEquals('Success', result1);
+            //createEmailTemplate('data_backup');
+            system.runAs(user)
+            {
+                Blob attachmentBody = Blob.valueOf('Test Data Attachment');
+                String attachmentType = 'Data';
+                String result = Emailandnotification.sendEmailToCurrentUser(attachmentBody, attachmentType);      
+                System.assertEquals('Success', result);
+            }
+        test.stopTest();
     }
     
     @isTest
@@ -94,5 +121,25 @@ private class EmailAndNotificationTest {
         Test.stopTest();
     
         System.assertEquals('Success', result);
+    }
+    
+    Private static void createEmailTemplate(String templateName){
+        try{
+            EmailTemplate template = new EmailTemplate();
+            template.Name = templateName;
+            template.Body = 'test body';
+            template.IsActive = true;
+            insert template;
+        }
+        catch(Exception ex){
+            system.debug(ex.getMessage());
+        }
+    }
+    
+    private static void createCustomNotification(){
+        CustomNotificationType cstmNotfn = new CustomNotificationType();
+           cstmNotfn.DeveloperName = 'BackupNotification';
+           cstmNotfn.Desktop = true;
+           cstmNotfn.Mobile = true;
     }
 }
