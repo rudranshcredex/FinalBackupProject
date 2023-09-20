@@ -23,8 +23,10 @@
                             <div>
                                 <!-- <lightning-file-upload label="Upload File" name="fileUploader" accept=".zip"
                                     onuploadfinished={handleUpload}></lightning-file-upload> -->
+
                                 <lightning-input label="Upload File" name="fileUploader" accept=".zip" type="file"
-                                    onchange={handleUpload}></lightning-input>
+                                    onchange={handleUpload} multiple></lightning-input>
+
                             </div>
                             <div class="schedule-btn" onclick={handleRecovery} id="btn-1">
                                 <p>Recover</p>
@@ -143,66 +145,76 @@
     <template if:true={objectScreen}>
         <lightning-card title="May cause redundant data">
             <div>
-                <div>
-                    <p> <b> These objects don't have External Ids so duplicate data might get Inserted(You can use
-                            duplicate rules to avoid this).</b> </p>
-                </div>
                 <div class="main-table-div">
                     <div class="external-id-tables">
-                        <div class="without-id" if:true={tableWithoutId}>
-                            <!-- <lightning-datatable key-field="id" class="slds-scrollable_x"
+                        <template lwc:if={tableWithoutId}>
+                            <div>
+                                <p> <b> These objects don't have External Ids so duplicate data might get Inserted(You
+                                        can use
+                                        duplicate rules to avoid this).</b> </p>
+                            </div>
+                            <div class="without-id">
+                                <!-- <lightning-datatable key-field="id" class="slds-scrollable_x"
                                 data={objectsWithoutExternalId} columns={columns1}></lightning-datatable> -->
-                            <table class="table-style">
-                                <thead>
-                                    <tr>
-                                        <th>Object Names</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <template for:each={objectsWithoutExternalId} for:item="item">
-                                        <tr key={item.objectName}>
-                                            <td>{item.objectName}</td>
+                                <table class="table-style">
+                                    <thead>
+                                        <tr>
+                                            <th>Object Names</th>
                                         </tr>
-                                    </template>
-                                </tbody>
-                            </table>
-                            <div class="perform-insert-btn">
-                                <lightning-button label="Perform Insert" onclick={handleInsert}
-                                    variant="brand"></lightning-button>
+                                    </thead>
+                                    <tbody>
+                                        <template for:each={objectsWithoutExternalId} for:item="item">
+                                            <tr key={item.objectName}>
+                                                <td>{item.objectName}</td>
+                                            </tr>
+                                        </template>
+                                    </tbody>
+                                </table>
+                                <div class="perform-insert-btn">
+                                    <lightning-button label="Perform Insert" onclick={handleInsert}
+                                        variant="brand"></lightning-button>
+                                </div>
+
                             </div>
-                        </div>
-                        <div class="with-id" if:true={tableWithId}>
-                            <table class="table-style">
-                                <thead>
-                                    <tr>
-                                        <th>Object Names</th>
-                                        <th>External Id</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <!-- <template for:each={objectsWithExternalId} for:item="item" for:index="index"> -->
-                                        <template for:each={dummyData} for:item="item" for:index="index">
-                                        <tr key={item.objectName}>
-                                            <td>{item.objectName}</td>
-                                            <td>
-                                                <select class="external-id-picklist" data-index={index}
-                                                    onchange={handlePicklistChange}>
-                                                    <option value="">Select an External Id</option>
-                                                    <!-- <template for:each={item.ExternalIds} for:item="extId"> -->
-                                                        <template for:each={item.externalId} for:item="extId">
-                                                        <option key={extId} value={extId}>{extId}</option>
-                                                    </template>
-                                                </select>
-                                            </td>
+                        </template>
+                        <template lwc:if={tableWithId}>
+
+                            <div class="with-id">
+
+                                <table class="table-style">
+                                    <thead>
+                                        <tr>
+                                            <th>Object Names</th>
+                                            <th>External Id</th>
                                         </tr>
-                                    </template>
-                                </tbody>
-                            </table>
-                            <div class="perform-insert-btn">
-                                <lightning-button label="Perform Upsert" onclick={handleUpsert}
-                                    variant="brand"></lightning-button>
+                                    </thead>
+                                    <tbody>
+                                        <template for:each={objectsWithExternalId} for:item="item" for:index="index">
+                                            <!-- <template for:each={dummyData} for:item="item" for:index="index"> -->
+                                            <tr key={item.objectName}>
+                                                <td>{item.objectName}</td>
+                                                <td>
+                                                    <select class="external-id-picklist" data-index={index}
+                                                        onchange={handlePicklistChange}>
+                                                        <option value="">Select an External Id</option>
+                                                        <template for:each={item.ExternalIds} for:item="extId">
+                                                            <!-- <template for:each={item.externalId} for:item="extId"> -->
+                                                            <option key={extId} value={extId}>{extId}</option>
+                                                        </template>
+                                                    </select>
+                                                </td>
+                                            </tr>
+                                        </template>
+                                    </tbody>
+                                </table>
+                                <div class="perform-insert-btn">
+                                    <lightning-button label="Perform Upsert" onclick={handleUpsert}
+                                        variant="brand"></lightning-button>
+                                </div>
                             </div>
-                        </div>
+                        </template>
+
+
                     </div>
                 </div>
             </div>
