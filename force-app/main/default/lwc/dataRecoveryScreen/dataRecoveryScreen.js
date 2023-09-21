@@ -21,6 +21,10 @@ export default class DataRecoveryScreen extends LightningElement {
   userEmail;
   selecetdStringData = [];
   selectedObjectDataString = [];
+  selectedId;
+
+  currentStep = "1";
+  step = 1;
 
   columns1 = [{ label: 'Names', fieldName: 'objectName', type: "text" }];
 
@@ -40,7 +44,7 @@ export default class DataRecoveryScreen extends LightningElement {
   local = local;
   cloud = cloud;
   date = Date();
-  file;
+  file =null;
   objectScreen = false;
   showScreen1 = true;
   showScreen2 = false;
@@ -67,8 +71,7 @@ export default class DataRecoveryScreen extends LightningElement {
       this.username = data.fields.Name.value;
       this.userEmail = data.fields.Email.value;
     } else if (error) {
-      // Handle error
-      console.error(error);
+      console.log('error',error);
     }
   }
 
@@ -118,7 +121,8 @@ export default class DataRecoveryScreen extends LightningElement {
   // }
 
   handlePicklistChange(event) {
-    const selectedId = event.target.value;
+    //const selectedId = event.target.value;
+    this.selectedId = event.target.value;
     const objectIndex = event.target.getAttribute('data-index');
     //const selectedObject = this.dummyData[objectIndex];
     const selectedObject = this.objectsWithExternalId[objectIndex];
@@ -148,14 +152,13 @@ export default class DataRecoveryScreen extends LightningElement {
     console.log('this.selectedObjectDataString', JSON.stringify(this.selectedObjectDataString));
   }
 
-
   handleUpload(event) {
     console.log(event);
     console.log(event.detail.files[0]);
     console.log(this.file);
 
     let selectedFile = event.target.files[0];
-    this.file = event.detail.files[0];
+    // this.file = event.detail.files[0];
     this.fileName = selectedFile.name;
     const expectedName = 'Salesforce Data';
     if (!this.fileName.includes(expectedName)) {
@@ -165,20 +168,18 @@ export default class DataRecoveryScreen extends LightningElement {
     }
     else {
       console.log("inside file change function");
+      this.file = event.detail.files[0];
       this.showToast('Success', 'File Uploaded Successfully ' + this.fileName, 'success');
     }
-
-
-
-
   }
-
-
 
   handleRecovery() {
     console.log('handle recovery');
+    if (this.file == null) {
+      this.showToast('Error', 'Please attach required file to Recover Data', 'error');
+      return;
+    }
     this.retrievalLoading = true;
-
 
     /*testMethods({FileData:'this.file'})
     .then(data=>{
@@ -198,6 +199,8 @@ export default class DataRecoveryScreen extends LightningElement {
           this.retrievalLoading = false;
           this.objectScreen = true;
           this.showScreen1 = false;
+          this.step = 2;
+          this.handleStepUp();
           console.log('data');
           console.log(data);
           console.log(JSON.stringify(data));
@@ -232,7 +235,6 @@ export default class DataRecoveryScreen extends LightningElement {
               console.log('this.objectsWithExternalId.length', this.objectsWithExternalId.length);
               //this.tableWithId = false;
             }
-
             if (this.objectsWithoutExternalId.length == 0) {
               console.log('this.objectsWithoutExternalId.length', 
               this.objectsWithoutExternalId.length);
@@ -277,6 +279,8 @@ export default class DataRecoveryScreen extends LightningElement {
   handleInsert() {
     this.showScreen2 = true;
     this.objectScreen = false;
+    this.step = 3;
+    this.handleStepUp();
 
     /*if (buttonId === 'btn-1') {
         this.RecoveryLocalScreen = true;
@@ -312,14 +316,24 @@ export default class DataRecoveryScreen extends LightningElement {
 
   handleUpsert() {
     console.log('upsert');
-    performUpsert({ objectsToUpsert: JSON.stringify(this.selectedObjectDataString) })
-      .then(data => {
-        console.log('data');
-        console.log(data);
-      })
-      .catch(error => {
-        console.log(error);
-      })
+    
+    if (!this.selectedId) {
+       this.showToast('Error', 'Please Select External Ids', 'error')
+      return;
+      
+    }
+    else {
+      performUpsert({ objectsToUpsert: JSON.stringify(this.selectedObjectDataString) })
+        .then(data => {
+          console.log('data');
+          console.log(data);
+          this.showToast('Data Upserted','Move to the next Step', 'success');
+
+        })
+        .catch(error => {
+          console.log(error);
+        })
+    }
   }
   showToast(title, message, variant) {
     this.dispatchEvent(
@@ -330,7 +344,11 @@ export default class DataRecoveryScreen extends LightningElement {
       })
     );
   }
-
-
+  handleStepUp() {
+    this.showScreen1 = this.step == 1;
+    this.showScreen2 = this.step == 2;
+    this.showScreen3 = this.step == 3;
+    this.currentStep = "" + this.step;
+  }
 
 }

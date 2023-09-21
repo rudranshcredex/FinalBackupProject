@@ -8,9 +8,9 @@ import EMAIL_FIELD from "@salesforce/schema/User.Email";
 import { ShowToastEvent } from "lightning/platformShowToastEvent";
 import deployMetadata from '@salesforce/apex/MetadataRecovery.deployMetadata';
 export default class MetadataRecoveryScreen extends LightningElement {
-  recoveryAwsText = "Your data recovery from AWS is now in the queue and will be processed shortly. We're working diligently to ensure that your requested data is recovered accurately and securely.";
+  recoveryAwsText = "Your metadata recovery from AWS is now in the queue and will be processed shortly. We're working diligently to ensure that your requested data is recovered accurately and securely.";
   lowertext = "You will receive an email notification once the recovery is completed, along with a custom notification .";
-  recoveryLocaltext = "Your data recovery is now in the queue and will be processed shortly. We're working diligently to ensure that your requested data is recovered accurately and securely.";
+  recoveryLocaltext = "Your metadata recovery is now in the queue and will be processed shortly. We're working diligently to ensure that your requested data is recovered accurately and securely.";
 
   userEmail;
   local = local;
@@ -33,6 +33,9 @@ export default class MetadataRecoveryScreen extends LightningElement {
   awsRegion = null;
   awsBucket = null;
   fileData = null;
+
+  currentStep = "1";
+  step = 1;
 
   @wire(getRecord, {
     recordId: USER_ID,
@@ -63,9 +66,8 @@ export default class MetadataRecoveryScreen extends LightningElement {
     // this.showToast('Uploaded SuccessFully', this.file.name, 'success');
 
     let selectedFile = event.target.files[0];
-    this.file = event.detail.files[0];
     this.fileName = selectedFile.name;
-    const expectedName = 'Salesforce Data';
+    const expectedName = 'Salesforce Metadata';
     if (!this.fileName.includes(expectedName)) {
       console.log('not uploaded')
       this.showToast('Error', 'Please Upload Files which includes name ' + expectedName, 'error');
@@ -73,10 +75,15 @@ export default class MetadataRecoveryScreen extends LightningElement {
     }
     else {
       console.log("inside file change function");
+      this.file = event.detail.files[0];
       this.showToast('Success', 'File Uploaded Successfully ' + this.fileName, 'success');
     }
   }
   handleRecovery() {
+    if (this.file == null) {
+      this.showToast('Error', 'Please attach required file to Recover Data', 'error');
+      return;
+    }
     this.retrievalLoading = true;
     const fileReader = new FileReader();
     fileReader.onload = () => {
@@ -85,10 +92,12 @@ export default class MetadataRecoveryScreen extends LightningElement {
       console.log(file);
       deployMetadata({ zipContent: file })
         .then(data => {
+          this.showScreen1=false;
+          this.RecoveryLocalScreen=true;
           this.retrievalLoading = false;
-          this.RecoveryLocalScreen = true;
           console.log('data');
           console.log(data);
+          
         })
         .catch(error => {
           this.retrievalLoading = false;
@@ -97,6 +106,10 @@ export default class MetadataRecoveryScreen extends LightningElement {
         })
     };
     fileReader.readAsDataURL(this.file);
+    
+    this.step=2;
+    this.handleStepUp();
+
   }
 
   showToast(title, message, variant) {
@@ -141,5 +154,12 @@ export default class MetadataRecoveryScreen extends LightningElement {
         console.log('error');
         console.log(error);
       })
+
+      this.showScreen1=false;
+      this.RecoveryAwsScreen=true;
+  }
+  handleStepUp() {
+    this.showScreen1 = this.step == 1;
+    this.currentStep = "" + this.step;
   }
 }

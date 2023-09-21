@@ -217,6 +217,14 @@
 .table-style select {
   width: 100%;
 }
+.footer{
+  display: flex;
+  justify-content: space-between;
+}
+.buttons{
+  padding-right:2%;
+}
+
 
 @media (max-width: 460px) {
   .text h1 {
