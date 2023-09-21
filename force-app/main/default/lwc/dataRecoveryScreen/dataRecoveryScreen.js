@@ -230,12 +230,12 @@ export default class DataRecoveryScreen extends LightningElement {
             console.log('this.objectsWithoutExternalId', this.objectsWithoutExternalId, this.objectsWithoutExternalId.length);
             if (this.objectsWithExternalId.length == 0) {
               console.log('this.objectsWithExternalId.length', this.objectsWithExternalId.length);
-              this.tableWithId = false;
+              //this.tableWithId = false;
             }
 
             if (this.objectsWithoutExternalId.length == 0) {
               console.log('this.objectsWithoutExternalId.length', this.objectsWithoutExternalId.length);
-              this.tableWithoutId = false;
+              //this.tableWithoutId = false;
             }
             /* console.log('objwithoutExternalId      ');
              console.log(objwithoutExternalId);
